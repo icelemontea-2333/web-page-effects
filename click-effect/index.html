@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hans-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index</title>
+    <style>
+        /* 超出屏幕隐藏 */
+        .contain-outside{
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            pointer-events: none;
+            filter: url(#filter);
+            overflow: hidden;
+        }
+        /* 用于定位 */
+        .contain-inside{
+            position: fixed;
+        }
+        /* 小水滴 */
+        .item{
+            left: 0;
+            top: 0;
+            width: 6px;
+            height: 6px;
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%,-50%);
+            background-color: rgba(83,200,230,.75);
+            animation: moveX 2s forwards,
+            moveY 1.25s cubic-bezier(.46,var(--y),.71,.43) forwards,
+            rotate 2s linear forwards;
+        }
+        /* XY移动方向 */
+        @keyframes moveX{
+            to{left: var(--x);}
+        }
+        @keyframes moveY{
+            to{top: 500px;
+            opacity: 0;}
+        }
+        /* 旋转角度 */
+        @keyframes rotate{
+            from{transform: rotate(0);}
+            to{transform: rotate(var(--rotate));}
+        }
+    </style>
+</head>
+<body>
+    <span class="contain-outside" id="contain"></span>
+    <!-- 滤镜效果 -->
+    <svg style="display: none;">
+        <defs>
+            <filter id="filter">
+                <feGaussianBlur
+                    in="SourceGraphic"
+                    stdDeviation="5"
+                    result="blur"
+                ></feGaussianBlur>
+                <feColorMatrix
+                    in="blur"
+                    mode="matrix"
+                    values="
+                        1 0 0 0 0
+                        0 1 0 0 0
+                        0 0 1 0 0
+                        0 0 0 100 -10"
+                ></feColorMatrix>
+            </filter>
+        </defs>
+    </svg>
+    <script>
+        //获取DOM
+        let contain = document.getElementById('contain');
+        //鼠标按下事件
+        function onclickWindow(e){
+            //只能通过左键触发
+            if(e.which != 1)
+                return;;
+            //设置定位元素
+            let containInside = document.createElement('span');
+            containInside.classList.add('contain-inside');
+            containInside.style.left = `${e.clientX}px`;
+            containInside.style.top = `${e.clientY}px`;
+            //设置小水滴的XY移动距离与旋转角度
+            containInside.innerHTML = `
+                <span class="item" style="--x:${50 - 100 * Math.random()}px;--rotate:${360 - Math.random() * 720}deg;--y:-${Math.random() * 0.35 + 0.25}"></span>
+                <span class="item" style="--x:${50 - 100 * Math.random()}px;--rotate:${360 - Math.random() * 720}deg;--y:-${Math.random() * 0.35 + 0.25}"></span>
+                <span class="item" style="--x:${50 - 100 * Math.random()}px;--rotate:${360 - Math.random() * 720}deg;--y:-${Math.random() * 0.35 + 0.25}"></span>
+            `;
+            contain.append(containInside);
+            //设置一秒后消失
+            setTimeout(()=>{
+                containInside.remove();
+            },1000);
+        }
+        //监听鼠标按下事件
+        window.addEventListener('mousedown',onclickWindow);
+    </script>
+</body>
+</html>
